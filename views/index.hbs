@@ -1,0 +1,330 @@
+<section id="dashboard">
+    <h1 class="text-3xl font-semibold mb-6 text-white">Dashboard Overview</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-teal-400 mb-2">Total Inventory Value</h2>
+            <p class="text-3xl font-bold text-white">₹{{#if dashboardData.totalValue}}{{dashboardData.totalValue}}{{else}}0.00{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Based on current stock & cost</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-yellow-400 mb-2">Low Stock Items</h2>
+            <p class="text-3xl font-bold text-white">{{#if dashboardData.lowStockCount}}{{dashboardData.lowStockCount}}{{else}}0{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Items with quantity < 5</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-blue-400 mb-2">Recent Transactions (24h)</h2>
+            <p class="text-3xl font-bold text-white">{{#if dashboardData.recentTransactionCount}}{{dashboardData.recentTransactionCount}}{{else}}0{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Receipts, Shipments, Adjustments</p>
+        </div>
+         <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-indigo-400 mb-2">Active Warehouses</h2>
+            <p class="text-3xl font-bold text-white">{{#if dashboardData.warehouseCount}}{{dashboardData.warehouseCount}}{{else}}0{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Total locations managed</p>
+        </div>
+         <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-purple-400 mb-2">Total Suppliers</h2>
+            <p class="text-3xl font-bold text-white">{{#if dashboardData.supplierCount}}{{dashboardData.supplierCount}}{{else}}0{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Number of registered suppliers</p>
+        </div>
+         <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-pink-400 mb-2">Total SKUs (Item Types)</h2>
+            <p class="text-3xl font-bold text-white">{{#if dashboardData.productTypeCount}}{{dashboardData.productTypeCount}}{{else}}0{{/if}}</p>
+            <p class="text-sm text-gray-400 mt-1">Distinct product types registered</p>
+        </div>
+    </div>
+    <div class="mt-8 bg-gray-800 p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-white mb-4">Recent Activity</h2>
+         {{#if dashboardData.recentTransactions.length}}
+             {{#each dashboardData.recentTransactions}}
+                 <div class="border-t border-gray-700 mt-4 pt-4">
+                    <p class="text-sm">
+                        <span class="font-semibold
+                            {{#ifeq this.transaction_type 'RECEIPT'}}text-teal-400{{/ifeq}}
+                            {{#ifeq this.transaction_type 'SHIPMENT'}}text-red-400{{/ifeq}}
+                            {{#ifeq this.transaction_type 'ADJUSTMENT'}}text-yellow-400{{/ifeq}}
+                            {{#ifeq this.transaction_type 'TRANSFER_IN'}}text-blue-400{{/ifeq}}
+                            {{#ifeq this.transaction_type 'TRANSFER_OUT'}}text-orange-400{{/ifeq}}
+                        ">[{{this.transaction_type}}]</span>
+                        {{#if (gt this.quantity_change 0)}}+{{/if}}{{this.quantity_change}} units of SKU '{{this.sku}}' ({{this.product_name}}) {{#if this.notes}}({{this.notes}}){{/if}}.
+                        <span class="text-gray-500">- {{this.formatted_date}}</span> </p>
+                </div>
+             {{/each}}
+         {{else}}
+             <p class="text-gray-400">No recent transactions found.</p>
+         {{/if}}
+    </div>
+</section>
+
+<hr class="my-12 border-gray-700">
+
+<section id="insert">
+    <h1 class="text-3xl font-semibold mb-6 text-white">Insert Data</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold text-teal-400 mb-4">Add New Warehouse</h2>
+            <button id="btn-show-add-warehouse" class="btn btn-primary">Add Warehouse</button>
+            <div id="form-add-warehouse" class="dynamic-form mt-4 border-t border-gray-700 pt-4">
+                <form action="/warehouses/add" method="POST">
+                    <div class="mb-3">
+                        <label for="warehouseName" class="block text-sm font-medium text-gray-300 mb-1">Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="warehouseName" name="warehouseName" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-3">
+                        <label for="warehouseAddress" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                        <textarea id="warehouseAddress" name="address" rows="2" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="warehouseCapacity" class="block text-sm font-medium text-gray-300 mb-1">Capacity (# Products)</label>
+                        <input type="number" id="warehouseCapacity" name="capacity" min="0" step="1" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Warehouse</button>
+                    <button type="button" class="btn btn-secondary ml-2" onclick="toggleForm('form-add-warehouse')">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold text-teal-400 mb-4">Add New Supplier</h2>
+            <button id="btn-show-add-supplier" class="btn btn-primary">Add Supplier</button>
+            <div id="form-add-supplier" class="dynamic-form mt-4 border-t border-gray-700 pt-4">
+                <form action="/suppliers/add" method="POST">
+                    <div class="mb-3">
+                        <label for="supplierName" class="block text-sm font-medium text-gray-300 mb-1">Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="supplierName" name="supplierName" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactPerson" class="block text-sm font-medium text-gray-300 mb-1">Contact Person</label>
+                        <input type="text" id="contactPerson" name="contactPerson" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="block text-sm font-medium text-gray-300 mb-1">Phone</label>
+                        <input type="text" id="phone" name="phone" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                        <input type="email" id="email" name="email" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="address" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                        <textarea id="address" name="address" rows="2" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Supplier</button>
+                    <button type="button" class="btn btn-secondary ml-2" onclick="toggleForm('form-add-supplier')">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold text-teal-400 mb-4">Add Inventory (Product) Stock</h2>
+             <p class="text-sm text-gray-400 mb-2">Adds stock for an existing product type or creates a new inventory entry.</p>
+            <button id="btn-show-add-inventory" class="btn btn-primary">Add Stock</button>
+            <div id="form-add-inventory" class="dynamic-form mt-4 border-t border-gray-700 pt-4">
+                <form action="/inventory/add" method="POST">
+                     <div class="mb-3">
+                        <label for="invProductId" class="block text-sm font-medium text-gray-300 mb-1">Product (SKU - Name) <span class="text-red-500">*</span></label>
+                        <select id="invProductId" name="product_id" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="" disabled selected>Select Product</option>
+                            {{#each products}} <option value="{{this.product_id}}">{{this.sku}} - {{this.name}}</option>
+                            {{/each}}
+                        </select>
+                         <p class="text-xs text-gray-500 mt-1">If product type doesn't exist, add it via sidebar first.</p>
+                    </div>
+                     <div class="mb-3">
+                        <label for="invWarehouseId" class="block text-sm font-medium text-gray-300 mb-1">Warehouse <span class="text-red-500">*</span></label>
+                        <select id="invWarehouseId" name="warehouse_id" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                             <option value="" disabled selected>Select Warehouse</option>
+                             {{#each warehouses}} <option value="{{this.warehouse_id}}">{{this.name}}</option>
+                             {{/each}}
+                        </select>
+                    </div>
+                     <div class="mb-3">
+                        <label for="invQuantity" class="block text-sm font-medium text-gray-300 mb-1">Quantity Added <span class="text-red-500">*</span></label>
+                        <input type="number" id="invQuantity" name="quantity" required min="1" step="1" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="invLocation" class="block text-sm font-medium text-gray-300 mb-1">Storage Location (Optional)</label>
+                        <input type="text" id="invLocation" name="storage_location" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Aisle 5, Shelf B">
+                    </div>
+                     <div class="mb-4">
+                        <label for="invNotes" class="block text-sm font-medium text-gray-300 mb-1">Notes (Optional)</label>
+                        <input type="text" id="invNotes" name="notes" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Initial stock receipt">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Stock to Inventory</button>
+                     <button type="button" class="btn btn-secondary ml-2" onclick="toggleForm('form-add-inventory')">Cancel</button>
+                </form>
+            </div>
+        </div>
+         <div class="bg-gray-800 p-6 rounded-lg shadow md:col-span-2"> <h2 class="text-xl font-semibold text-teal-400 mb-4">Add New Product Type</h2>
+            <p class="text-sm text-gray-400 mb-2">Define a new type of product (SKU, name, category, supplier, cost).</p>
+            <button id="btn-show-add-product-type" class="btn btn-primary">Add Product Type</button>
+             <div id="form-add-product-type" class="dynamic-form mt-4 border-t border-gray-700 pt-4">
+                 <form action="/products/add" method="POST">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="prodSku" class="block text-sm font-medium text-gray-300 mb-1">SKU <span class="text-red-500">*</span></label>
+                            <input type="text" id="prodSku" name="sku" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        </div>
+                         <div>
+                            <label for="prodName" class="block text-sm font-medium text-gray-300 mb-1">Product Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="prodName" name="name" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        </div>
+                         <div>
+                            <label for="prodCategory" class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                            <input type="text" id="prodCategory" name="category" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        </div>
+                         <div>
+                            <label for="prodCost" class="block text-sm font-medium text-gray-300 mb-1">Cost per Unit (₹) <span class="text-red-500">*</span></label>
+                            <input type="number" id="prodCost" name="cost" required min="0" step="0.01" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="prodSupplierId" class="block text-sm font-medium text-gray-300 mb-1">Supplier <span class="text-red-500">*</span></label>
+                            <select id="prodSupplierId" name="supplier_id" required class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                 <option value="" disabled selected>Select Supplier</option>
+                                {{#each suppliers}} <option value="{{this.supplier_id}}">{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                             <p class="text-xs text-gray-500 mt-1">If supplier doesn't exist, add it via sidebar first.</p>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="prodDescription" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                            <textarea id="prodDescription" name="description" rows="2" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Save Product Type</button>
+                        <button type="button" class="btn btn-secondary ml-2" onclick="toggleForm('form-add-product-type')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="my-12 border-gray-700">
+
+<section id="delete">
+    <h1 class="text-3xl font-semibold mb-6 text-white">Delete Product</h1>
+     <div class="bg-gray-800 p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-red-500 mb-4">Remove Product by SKU</h2>
+        <p class="text-gray-400 mb-4">Enter the SKU of the product type you wish to delete. This will remove the product definition and all its stock records from all warehouses. <strong class="text-yellow-400">This action cannot be undone and will fail if the product has existing transaction history.</strong></p>
+        <form action="/products/delete" method="POST" onsubmit="return confirmProductDelete(this);">
+            <input type="text" name="sku" placeholder="Enter Product SKU to delete" required
+                   class="p-2 rounded bg-gray-700 border border-gray-600 text-white w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <button type="submit" class="btn btn-danger mt-4 md:mt-0 md:ml-2">Delete Product</button>
+        </form>
+     </div>
+</section>
+
+<hr class="my-12 border-gray-700">
+
+<section id="search">
+    <h1 class="text-3xl font-semibold mb-6 text-white">Search & View Inventory</h1>
+     <div class="bg-gray-800 p-6 rounded-lg shadow mb-6">
+        <h2 class="text-xl font-semibold text-blue-400 mb-4">Find Products/Inventory</h2>
+        <form id="search-form" method="GET">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label for="searchSku" class="block text-sm font-medium text-gray-300 mb-1">SKU <span class="text-red-500">*</span></label>
+                    <input type="text" id="searchSku" name="sku" placeholder="Enter SKU" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                 <div>
+                    <label for="searchName" class="block text-sm font-medium text-gray-300 mb-1">Product Name</label>
+                    <input type="text" id="searchName" name="name" placeholder="Enter Name" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                 <div>
+                    <label for="searchCategory" class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                    <input type="text" id="searchCategory" name="category" placeholder="Enter Category" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                 <div>
+                    <label for="searchWarehouse" class="block text-sm font-medium text-gray-300 mb-1">Warehouse <span class="text-red-500">*</span></label>
+                     <select id="searchWarehouse" name="warehouse_id" class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         <option value="">Any Warehouse</option>
+                          {{#each warehouses}} <option value="{{this.warehouse_id}}">{{this.name}}</option>
+                         {{/each}}
+                    </select>
+                </div>
+                <div class="md:col-span-3 flex justify-end mt-2">
+                    <button type="submit" class="btn btn-info">Search Inventory</button>
+                     <a href="/inventory/search" class="btn btn-secondary ml-2">Clear Search</a> </div>
+            </div>
+        </form>
+     </div>
+     <div id="search-results" class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow overflow-x-auto">
+         <h2 class="text-xl font-semibold text-white mb-4">Inventory List</h2>
+          {{#if inventoryItems.length}}
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-700">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SKU</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Product Name</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Warehouse</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Quantity</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Location</th>
+                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Cost/Unit</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Category</th>
+                        <th scope="col" class="relative px-4 py-3"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                    {{#each inventoryItems}}
+                     <tr class="hover:bg-gray-700 transition duration-150
+                        {{#if (lt this.quantity 5)}} bg-yellow-900/50 {{/if}}  {{#if (gt this.quantity 50)}} bg-orange-900/50 {{/if}} ">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-white">{{this.sku}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{{this.product_name}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{{this.warehouse_name}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold {{#if (lt this.quantity 5)}}text-yellow-400{{else if (gt this.quantity 50)}}text-orange-400{{else}}text-white{{/if}}">{{this.quantity}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{{this.storage_location}}</td>
+                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">₹{{this.cost}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{{this.category}}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="showUpdateForm({{this.inventory_id}}, {{this.quantity}})" class="text-teal-400 hover:text-teal-300">Update Qty</button>
+                            </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+          {{else}}
+             <p class="text-gray-400 text-center py-4">No inventory items found matching your criteria.</p>
+          {{/if}}
+
+          <div class="mt-6 border-t border-gray-700 pt-4 flex gap-4">
+                 <form action="/inventory/search" method="GET">
+                    <input type="hidden" name="stock_level" value="under">
+                    <button type="submit" class="btn btn-warning">Show Understocked (<5)</button>
+                </form>
+                 <form action="/inventory/search" method="GET">
+                    <input type="hidden" name="stock_level" value="over">
+                    <button type="submit" class="btn btn-warning" style="background-color: #ea580c; hover:background-color: #c2410c;">Show Overstocked (>50)</button> </form>
+            </div>
+     </div>
+</section>
+
+<hr class="my-12 border-gray-700">
+
+<section id="update">
+    <h1 class="text-3xl font-semibold mb-6 text-white">Update Data</h1>
+     <div class="bg-gray-800 p-6 rounded-lg shadow mb-6">
+        <h2 class="text-xl font-semibold text-purple-400 mb-4">Update Inventory Quantity</h2>
+        <p class="text-gray-400 mb-4">Click "Update Qty" on an item in the search results above to adjust its stock level.</p>
+        <div id="form-update-quantity" class="dynamic-form mt-4 border-t border-gray-700 pt-4">
+             <form action="/inventory/update/quantity" method="POST">
+                 <input type="hidden" id="updateInventoryId" name="inventory_id">
+                 <p class="mb-2 text-gray-300">Updating quantity for item: <strong id="updateItemIdentifier" class="text-white"></strong></p>
+                 <p class="mb-3 text-gray-300">Current Quantity: <strong id="updateCurrentQuantity" class="text-white"></strong></p>
+                 <div class="mb-3">
+                     <label for="updateNewQuantity" class="block text-sm font-medium text-gray-300 mb-1">New Quantity <span class="text-red-500">*</span></label>
+                     <input type="number" id="updateNewQuantity" name="new_quantity" required min="0" step="1" class="w-full md:w-1/2 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                 </div>
+                  <div class="mb-4">
+                        <label for="updateNotes" class="block text-sm font-medium text-gray-300 mb-1">Reason/Notes (Optional)</label>
+                        <input type="text" id="updateNotes" name="notes" class="w-full md:w-1/2 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="e.g., Stock count adjustment">
+                    </div>
+                 <button type="submit" class="btn btn-primary" style="background-color: #a855f7; hover:background-color: #9333ea;">Update Quantity</button> <button type="button" class="btn btn-secondary ml-2" onclick="toggleForm('form-update-quantity')">Cancel</button>
+             </form>
+        </div>
+     </div>
+     <div class="bg-gray-800 p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-indigo-400 mb-4">Modify Storage Locations & Other Details</h2>
+        <p class="text-gray-400">Functionality to update product details (description, category), supplier info, or storage locations can be added here later.</p>
+        </div>
+</section>

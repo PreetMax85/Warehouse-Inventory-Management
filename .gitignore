@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Optional macOS folder
+.DS_Store
+
+# Optional VS Code folder
+.vscode/

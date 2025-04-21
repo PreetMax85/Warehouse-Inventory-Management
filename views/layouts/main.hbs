@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#if title}}{{title}} - {{/if}}Warehouse IMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        /* Basic transition for dynamically shown forms */
+        .dynamic-form { display: none; transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out; opacity: 0; max-height: 0; overflow: hidden; } /* Added max-height transition */
+        .dynamic-form.active { display: block; opacity: 1; max-height: 1000px; /* Adjust as needed */ }
+         /* Style for buttons */
+         .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 500; /* font-medium */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+        }
+        .btn-primary { background-color: #0d9488; /* teal-600 */ color: white; }
+        .btn-primary:hover { background-color: #0f766e; /* teal-700 */ }
+        .btn-secondary { background-color: #4b5563; /* gray-600 */ color: white; }
+        .btn-secondary:hover { background-color: #374151; /* gray-700 */ }
+        .btn-danger { background-color: #dc2626; /* red-600 */ color: white; }
+        .btn-danger:hover { background-color: #b91c1c; /* red-700 */ }
+        .btn-warning { background-color: #f59e0b; /* yellow-500 */ color: white; }
+        .btn-warning:hover { background-color: #d97706; /* yellow-600 */ }
+        .btn-info { background-color: #3b82f6; /* blue-500 */ color: white; }
+        .btn-info:hover { background-color: #2563eb; /* blue-600 */ }
+        /* Style for flash message close button */
+        .flash-close-btn {
+            position: absolute;
+            top: 0.5rem; /* Adjust as needed */
+            right: 0.5rem; /* Adjust as needed */
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="flex flex-col min-h-screen"> <header class="bg-gray-800 shadow-md p-4">
+            <h1 class="text-xl font-bold text-teal-400 text-center">Warehouse Inventory Management System</h1>
+        </header>
+
+        <main class="flex-1 p-4 sm:p-8 overflow-y-auto"> <div class="mb-4 space-y-3"> {{#if success_msg}}
+                 <div class="bg-green-600 border border-green-700 text-white px-4 py-3 rounded-lg relative shadow" role="alert" style="transition: opacity 0.5s ease-out;">
+                     <strong class="font-bold">Success!</strong>
+                     <span class="block sm:inline ml-2">{{success_msg}}</span>
+                     <button type="button" class="flash-close-btn" onclick="this.parentElement.style.opacity='0'; setTimeout(() => { this.parentElement.style.display='none'; }, 500);">
+                         <svg class="fill-current h-6 w-6 text-green-100" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                     </button>
+                 </div>
+                 {{/if}}
+                 {{#if error_msg}}
+                 <div class="bg-red-600 border border-red-700 text-white px-4 py-3 rounded-lg relative shadow" role="alert" style="transition: opacity 0.5s ease-out;">
+                      <strong class="font-bold">Error!</strong>
+                      <span class="block sm:inline ml-2">{{error_msg}}</span>
+                      <button type="button" class="flash-close-btn" onclick="this.parentElement.style.opacity='0'; setTimeout(() => { this.parentElement.style.display='none'; }, 500);">
+                         <svg class="fill-current h-6 w-6 text-red-100" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                     </button>
+                 </div>
+                 {{/if}}
+             </div>
+             {{{body}}} </main>
+
+         <footer class="bg-gray-800 text-center text-xs text-gray-500 p-4 mt-auto">
+            Warehouse IMS &copy; {{#year}}{{/year}} </footer>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
